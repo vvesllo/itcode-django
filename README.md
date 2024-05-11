@@ -1,35 +1,37 @@
 ### 1. filter() 
 ```
-models.Article.objects.filter(post_date=datetime.date(2024, 5, 5))
-# <QuerySet [<Article: Статья 2 (2024-05-05)>, <Article: Статья 4 (2024-05-05)>]>
+models.Article.objects.filter(post_date__lt=datetime.date(2024, 5, 8))
+# <QuerySet [<Article: Статья 5 (2024-05-07)>]>
 ```
 
 
 ### 2. exclude()
 ```
-models.Article.objects.exclude(post_date=datetime.date(2024, 5, 5))
-# <QuerySet [<Article: Статья 1 (2024-05-06)>, <Article: Статья 3 (2023-09-05)>]>
+models.Article.objects.exclude(post_date__lt=datetime.date(2024, 5, 8))
+# <QuerySet [<Article: Статья 1 (2024-05-11)>, <Article: Статья 2 (2024-05-11)>, <Article: Статья 3 (2024-05-10)>, <Article: Статья 4 (2024-05-09)>]>
 ```
 
 
 ### 3. annotate()
 ```
-models.User.objects.values('permission').annotate(Count('id'))
-# <QuerySet [{'permission': 'moderator', 'id__count': 2}, {'permission': 'user', 'id__count': 3}]>
+user = models.User.objects.values('permission').annotate(elem_count=Count('id'))
+# <QuerySet [{'permission': 'moderator', 'elem_count': 2}, {'permission': 'user', 'elem_count': 3}]>
+user[0]['elem_count']
+# 2
 ```
 
 
 ### 4. alias()
 ```
 models.User.objects.values('permission').alias(Count('id'))
-<QuerySet [{'permission': 'moderator'}, {'permission': 'user'}]>
+# <QuerySet [{'permission': 'moderator'}, {'permission': 'user'}]>
 ```
 
 
 ### 5. order_by()
 ```
 models.Article.objects.order_by("post_date")
-# <QuerySet [<Article: Статья 3 (2023-09-05)>, <Article: Статья 2 (2024-05-05)>, <Article: Статья 4 (2024-05-05)>, <Article: Статья 1 (2024-05-06)>]>
+# <QuerySet [<Article: Статья 5 (2024-05-07)>, <Article: Статья 4 (2024-05-09)>, <Article: Статья 3 (2024-05-10)>, <Article: Статья 1 (2024-05-11)>, <Article: Статья 2 (2024-05-11)>]>
 ```
 
 
@@ -67,16 +69,16 @@ models.User.objects.values_list('id', 'first_name', 'second_name', 'permission')
 ### 10. dates()
 ```
 models.Article.objects.dates('post_date', 'year')
-# <QuerySet [datetime.date(2023, 1, 1), datetime.date(2024, 1, 1)]>
+# <QuerySet [datetime.date(2024, 1, 1)]>
 
 models.Article.objects.dates('post_date', 'month')
-# <QuerySet [datetime.date(2023, 9, 1), datetime.date(2024, 5, 1)]>
+# <QuerySet [datetime.date(2024, 5, 1)]>
 
 models.Article.objects.dates('post_date', 'week')
-# <QuerySet [datetime.date(2023, 9, 4), datetime.date(2024, 4, 29), datetime.date(2024, 5, 6)]>
+# <QuerySet [datetime.date(2024, 5, 6)]>
 
 models.Article.objects.dates('post_date', 'day')
-# <QuerySet [datetime.date(2023, 9, 5), datetime.date(2024, 5, 5), datetime.date(2024, 5, 6)]>
+# <QuerySet [datetime.date(2024, 5, 7), datetime.date(2024, 5, 9), datetime.date(2024, 5, 10), datetime.date(2024, 5, 11)]>
 ```
 
 
@@ -96,71 +98,107 @@ models.Article.objects.none()
 ### 13. all()
 ```
 models.Article.objects.all()
-# <QuerySet [<Article: Статья 1 (2024-05-06)>, <Article: Статья 2 (2024-05-05)>, <Article: Статья 3 (2023-09-05)>, <Article: Статья 4 (2024-05-05)>]>
+# <QuerySet [<Article: Статья 1 (2024-05-11)>, <Article: Статья 2 (2024-05-11)>, <Article: Статья 3 (2024-05-10)>, <Article: Статья 4 (2024-05-09)>, <Article: Статья 5 (2024-05-07)>]>
 ```
 
 
 ### 14. union()
 ```
-
+qs1 = models.Article.objects.all()
+qs2 = models.User.objects.all()
+qs1.union(qs2)
+# <QuerySet [<Article: Статья 1 (2024-05-06)>, <Article: Статья 2 (2024-05-05)>, <Article: Иванов (None)>, <Article: Статья 3 (2023-09-05)>, <Article: Михайлов (None)>, <Article: Статья 4 (2024-05-05)>, <Article: Мальцев (None)>, <Article: Осипова (None)>, <Article: Кузнецов (None)>]>
 ```
 
 
 ### 15. intersection()
 ```
-
+qs1 = models.Article.objects.filter(pk__lte=3)
+models.Article.objects.intersection(qs1)
+# <QuerySet [<Article: Статья 1 (2024-05-11)>, <Article: Статья 2 (2024-05-11)>, <Article: Статья 3 (2024-05-10)>]>
 ```
 
 
 ### 16. difference()
 ```
-
+qs1 = models.Article.objects.filter(pk__lte=3)
+qs1.difference(qs2)
+# <QuerySet [<Article: Статья 1 (2024-05-11)>, <Article: Статья 2 (2024-05-11)>, <Article: Статья 3 (2024-05-10)>]>
 ```
 
 
 ### 17. select_related()
 ```
-
+models.Article.objects.all().select_related('author')
 ```
 
 
 ### 18. prefetch_related()
 ```
-
+models.Article.objects.all().prefetch_related('author')
 ```
-
 
 ### 19. extra()
 ```
+a = models.Article.objects.extra(select={"is_recent": "post_date > '2024-05-10'"}).all()
 
+a[0]
+# <Article: Первая статья (2024-05-11)>
+a[0].is_recent
+# 1
+
+a[2]
+# <Article: Статья 3 (2024-05-10)>
+a[2].is_recent
+# 0
 ```
 
 
 ### 20. defer()
 ```
-
+models.Article.objects.defer('content')
+# no content field 
 ```
 
 
 ### 21. only()
 ```
-
+models.Article.objects.only("title")
+# only title field
 ```
 
 
 ### 22. using()
 ```
+models.Article.objects.all()
+# articles from db 1
 
+models.Article.objects.using("db_2").all()
+# articles from db 2
 ```
 
 
 ### 23. select_for_update()
 ```
+a = models.Article.objects.select_for_update().filter(pk=1).first()
+# <Article: Статья 1 (2024-05-11)>
 
+a.title = "Первая статья"
+a.save()
+# <Article: Первая статья (2024-05-11)>
 ```
 
 
 ### 24. raw()
 ```
+a_raw = models.Article.objects.raw("SELECT * FROM core_article")
+for a in a_raw:
+    print(a)
+
+# Первая статья (2024-05-11)
+# Статья 2 (2024-05-11)
+# Статья 3 (2024-05-10)
+# Статья 4 (2024-05-09)
+# Статья 5 (2024-05-07)
 
 ```

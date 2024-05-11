@@ -28,7 +28,7 @@ class User(models.Model):
 
 
 class Article(models.Model):
-    author_id = models.IntegerField('Автор', blank=False, null=False)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
     title = models.CharField('Заголовок', blank=False, null=False, max_length=100)
     content = models.TextField('Текст', blank=False, null=False)
 
