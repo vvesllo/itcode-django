@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}TITLE{% endblock %}</title>
+    <style>
+        .container {
+            border-radius: 6px;
+            background-color: aliceblue;
+            padding: 1em 3em 2em;
+            margin: 1em 0;
+        }
+        body {
+            margin: 1em;
+        }
+        hr {
+            border: 1px solid #0005;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    {% include 'inc/_navbar.html' %}
+    
+    {% block content %}
+    CONTENT
+    {% endblock %}
+</body>
+</html>
