@@ -1,13 +1,10 @@
 from typing import Any
 from django.shortcuts import render
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, DetailView
 
 import core
+import core.models
 # Create your views here.
-
-def user_articles(request, user_pk):
-    articles = core.models.Article.objects.filter(author__pk=user_pk)
-    return render(request, 'article/list.html', {'articles': articles, 'author': core.models.User.objects.get(pk=user_pk)})
 
 class ArticleList(TemplateView):
     template_name = 'article/list.html'
@@ -17,3 +14,15 @@ class ArticleList(TemplateView):
         context = super().get_context_data(**kwargs)
         context['articles'] = articles
         return context
+    
+class UserArticleList(DetailView):
+    template_name = 'article/list.html'
+    model = core.models.User
+    context_object_name = 'author'
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context['articles'] = core.models.Article.objects.filter(author=kwargs['object'])
+        return context
+    
+    

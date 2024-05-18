@@ -2,11 +2,7 @@
 
 {% block content %}
     <h1>
-    {% if author %}
-        {{ author }}
-    {% else %}
         Articles
-    {% endif %}
     </h1>
     {% for article in articles %}
     <div class="container">
