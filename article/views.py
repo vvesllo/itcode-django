@@ -10,15 +10,14 @@ class ArticleList(TemplateView):
     template_name = 'article/list.html'
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
-        articles = core.models.Article.objects.all()
         context = super().get_context_data(**kwargs)
-        context['articles'] = articles
+        context['articles'] = core.models.Article.objects.all()
         return context
     
 class UserArticleList(DetailView):
     template_name = 'article/list.html'
-    model = core.models.User
     context_object_name = 'author'
+    model = core.models.User
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)

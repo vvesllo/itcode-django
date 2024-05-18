@@ -1,27 +1,22 @@
 {% extends 'base.html' %}
 
+
+{% block title %}
+Статьи
+{% endblock %}
+
+
 {% block content %}
     <h1>
-    {% if author %}
-        {{ author }}
-    {% else %}
-        Articles
-    {% endif %}
+        {% if author %}
+            Статьи пользователя {{ author }}
+        {% else %}
+            Статьи
+        {% endif %}
     </h1>
+
     {% for article in articles %}
-    <div class="container">
-        <h2>{{ article.title }}</h2>
-        <i>Автор: 
-            <a href="{% url 'user' article.author.pk %}">{{ article.author }}</a>
-        </i>
-        <hr>
-        <p>
-            {{ article.content }}
-        </p>
-        <hr>
-        <i>
-            {{ article.post_date }}
-        </i>
-    </div>
+        {% include 'inc/_article.html' %}
     {% endfor %}
+
 {% endblock %}

@@ -1,0 +1,15 @@
+
+<div class="container">
+    <h2>{{ article.title }}</h2>
+    <i>Автор: 
+        <a href="{% url 'user' article.author.pk %}">{{ article.author }}</a>
+    </i>
+    <hr>
+    <p>
+        {{ article.content }}
+    </p>
+    <hr>
+    <i>
+        {{ article.post_date }}
+    </i>
+</div>
